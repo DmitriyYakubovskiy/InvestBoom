@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class Capital : Sound, TemplateObject
 {
+    [SerializeField] private SaveService saveService;
     [SerializeField] private TextMeshProUGUI text;
     [SerializeField] private GameObject notifyCounter;
     [SerializeField] private Money money;
@@ -16,10 +17,14 @@ public class Capital : Sound, TemplateObject
         return capital;
     }
 
+    private void Awake()
+    {
+        money.moneyCapitalAdd += AddMoneyToCapital;
+        money.moneyCapitalRemove += RemoveMoneyToCapital;
+    }
+
     private void Start()
     {
-        money.moneyCapitalAdd += AddMoneyToDeposit;
-        money.moneyCapitalRemove += RemoveMoneyToDeposit;
         Initialized();
     }
 
@@ -30,26 +35,27 @@ public class Capital : Sound, TemplateObject
 
     private void Initialized()
     {
-        if (!PlayerPrefs.HasKey(tag)) PlayerPrefs.SetFloat(tag, 100);
-        capital = PlayerPrefs.GetFloat(tag);
+        capital = saveService.Data.capital;
         UpdateText(capital);
     }
 
-    private void AddMoneyToDeposit(float bonus)
+    private void AddMoneyToCapital(float bonus)
     {
         PlaySound(0, volume);
         notifyCounter.GetComponent<NotifyMoneyCounter>().Activate();
         notifyCounter.GetComponent<NotifyMoneyCounter>().AddMoney(bonus);
         capital += bonus;
+        saveService.Data.capital = capital;
         UpdateText(capital);
     }
 
-    private void RemoveMoneyToDeposit(float minus)
+    private void RemoveMoneyToCapital(float minus)
     {
         PlaySound(0,volume);
         notifyCounter.GetComponent<NotifyMoneyCounter>().Activate();
         notifyCounter.GetComponent<NotifyMoneyCounter>().AddMoney(-1 * minus);
         capital -= minus;
+        saveService.Data.capital = capital;
         UpdateText(capital);
     }
 
@@ -60,8 +66,7 @@ public class Capital : Sound, TemplateObject
 
     private void OnDestroy()
     {
-        PlayerPrefs.SetFloat(tag, capital);
-        money.moneyCapitalAdd -= AddMoneyToDeposit;
-        money.moneyCapitalRemove -= RemoveMoneyToDeposit;
+        money.moneyCapitalAdd -= AddMoneyToCapital;
+        money.moneyCapitalRemove -= RemoveMoneyToCapital;
     }
 }

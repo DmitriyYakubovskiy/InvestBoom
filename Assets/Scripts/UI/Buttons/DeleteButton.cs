@@ -1,17 +1,13 @@
-using Assets.Scripts;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class DeleteButton : MonoBehaviour
 {
-    [SerializeField] GameObject[] templates;
+    [SerializeField] private SaveService saveService;
+
     public void DeleteSaving()
     {
-        PlayerPrefs.DeleteAll();
-        for (int i = 0; i < templates.Length; i++)
-        {
-            templates[i].GetComponent<TemplateObject>().Clear();
-        }
+        saveService.ResetProcess();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

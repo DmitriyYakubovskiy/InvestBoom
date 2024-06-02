@@ -5,11 +5,12 @@ using UnityEngine;
 
 public class DividentCounter : Sound,TemplateObject
 {
+    [SerializeField] private SaveService saveService;
     [SerializeField] private GameObject notifyCounter;
     [SerializeField] private TextMeshProUGUI text;
     [SerializeField] private Money money;
     [SerializeField] string tag;
-    [SerializeField] private float bonus = 0;
+    [SerializeField] private float bonus;
     private float startTime = 12;
     private float time=0;
 
@@ -22,6 +23,7 @@ public class DividentCounter : Sound,TemplateObject
             notifyCounter.GetComponent<NotifyMoneyCounter>().Activate();
             notifyCounter.GetComponent<NotifyMoneyCounter>().AddMoney(value-bonus);
             bonus = value;
+            saveService.Data.divident = bonus;
             UpdateText();
         }
     }
@@ -29,6 +31,10 @@ public class DividentCounter : Sound,TemplateObject
     private void Awake()
     {
         time=startTime;
+    }
+
+    private void Start()
+    {
         Initialized();
     }
 
@@ -49,8 +55,7 @@ public class DividentCounter : Sound,TemplateObject
 
     private void Initialized()
     {
-        if (!PlayerPrefs.HasKey(tag)) PlayerPrefs.SetFloat(tag, 0);
-        bonus = PlayerPrefs.GetFloat(tag);
+        bonus = saveService.Data.divident;
         UpdateText();
     }
 
@@ -64,10 +69,5 @@ public class DividentCounter : Sound,TemplateObject
         if (time <= 0) return true;
         time -= Time.deltaTime;
         return false;
-    }
-
-    private void OnDestroy()
-    {
-        PlayerPrefs.SetFloat(tag, bonus);
     }
 }

@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class Deposit : Sound, TemplateObject
 {
+    [SerializeField] private SaveService saveService;
     [SerializeField] private TextMeshProUGUI text;
     [SerializeField] private GameObject notifyCounter;
     [SerializeField] private Money money;
@@ -16,10 +17,14 @@ public class Deposit : Sound, TemplateObject
         return deposit;
     }
 
-    private void Start()
+    private void Awake()
     {
         money.moneyDepositAdd += AddMoneyToDeposit;
         money.moneyDepositRemove += RemoveMoneyToDeposit;
+    }
+
+    private void Start()
+    {
         Initialized();
     }
 
@@ -30,8 +35,7 @@ public class Deposit : Sound, TemplateObject
 
     private void Initialized()
     {
-        if (!PlayerPrefs.HasKey(tag)) PlayerPrefs.SetFloat(tag, 100);
-        deposit = PlayerPrefs.GetFloat(tag);
+        deposit = saveService.Data.deposit;
         UpdateText(deposit);
     }
 
@@ -41,6 +45,7 @@ public class Deposit : Sound, TemplateObject
         notifyCounter.GetComponent<NotifyMoneyCounter>().Activate();
         notifyCounter.GetComponent<NotifyMoneyCounter>().AddMoney(bonus);
         deposit += bonus;
+        saveService.Data.deposit = deposit;
         UpdateText(deposit);
     }
 
@@ -50,6 +55,7 @@ public class Deposit : Sound, TemplateObject
         notifyCounter.GetComponent<NotifyMoneyCounter>().Activate();
         notifyCounter.GetComponent<NotifyMoneyCounter>().AddMoney(-1 * minus);
         deposit -= minus;
+        saveService.Data.deposit = deposit;
         UpdateText(deposit);
     }
 
@@ -60,7 +66,6 @@ public class Deposit : Sound, TemplateObject
 
     private void OnDestroy()
     {
-        PlayerPrefs.SetFloat(tag,deposit);
         money.moneyDepositAdd -= AddMoneyToDeposit;
         money.moneyDepositRemove -= RemoveMoneyToDeposit;
     }

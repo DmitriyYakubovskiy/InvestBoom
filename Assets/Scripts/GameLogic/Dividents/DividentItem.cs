@@ -8,18 +8,20 @@ public class DividentItem : MonoBehaviour
     [SerializeField] private TextMeshProUGUI textDividents_plus;
     [SerializeField] private TextMeshProUGUI textDividents_minus;
     [SerializeField] private TextMeshProUGUI textPrice;
+    [SerializeField] private SaveService saveService;
     [SerializeField] private Text textDescription;
     [SerializeField] private Text textAnswer;
     [SerializeField] private GameObject divident;
     [SerializeField] private Image panel;
     [SerializeField] private Button goButton;
-    [SerializeField] Money money;
+    [SerializeField] private Money money;
 
     [SerializeField] private string dividentName;
     [SerializeField] private float potential;
     [SerializeField] private float dividents_plus;
     [SerializeField] private float dividents_minus;
     [SerializeField] private float price;
+    [SerializeField] private int id;
     [SerializeField] private bool check;
     //[SerializeField] private TextMeshProUGUI textPotential_plus;
     //[SerializeField] private TextMeshProUGUI textPotential_minus;
@@ -33,8 +35,10 @@ public class DividentItem : MonoBehaviour
 
     private void Start()
     {
-        if(!PlayerPrefs.HasKey(dividentName)) PlayerPrefs.SetInt(dividentName, 0);
-        if(PlayerPrefs.GetInt(dividentName) == 1) Lock();
+        if (saveService.Data.lockedDividents.Length != 0)
+        {
+            if (saveService.Data.lockedDividents[id] == true) Lock();
+        }
         textName.text = dividentName;
         //textPotential_plus.text = potential.ToString();
         //textPotential_minus.text = "-" +  potential.ToString();
@@ -54,7 +58,7 @@ public class DividentItem : MonoBehaviour
 
     public void OpenCompanyWindow()
     {
-        divident.GetComponent<Divident>().IsOpen(gameObject,textAnswer.text, textDescription.text);
+        divident.GetComponent<Divident>().IsOpen(gameObject,textAnswer.text, textDescription.text, id);
         divident.SetActive(true);
     }
 }

@@ -1,18 +1,35 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
+using UnityEngine.UI;
 
 public class SoundController : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField] private Sprite image1;
+    [SerializeField] private Sprite image2;
+    [SerializeField] private AudioMixer mixer;
+    [SerializeField] private string volueParameter = "MasterVol";
+    [SerializeField] private bool isActive = true;
+
+    private Button button;
+
+    public void Awake()
     {
-        
+        button=GetComponent<Button>();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void ButtonClick()
     {
-        
+        if (isActive)
+        {
+            button.GetComponent<Image>().sprite = image2;
+            mixer.SetFloat(volueParameter, -80);
+            isActive = false;
+        }
+        else
+        {
+            button.GetComponent<Image>().sprite = image1;
+            mixer.SetFloat(volueParameter, 0);
+            isActive =true;
+        }
     }
 }

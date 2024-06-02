@@ -8,9 +8,11 @@ public class Divident : MonoBehaviour
     [SerializeField] private TextMeshProUGUI textDescription;
     [SerializeField] private DividentCounter counter;
     [SerializeField] protected GameObject answerPanel;
+    [SerializeField] private SaveService saveService;
     [SerializeField] private Deposit deposit;
     [SerializeField] private Money money;
     [SerializeField] private Button buyButton;
+    [SerializeField] private Button sellButton;
 
     private GameObject dividentItem;
     private string answer;
@@ -18,18 +20,28 @@ public class Divident : MonoBehaviour
     private float price;
     private float dividents_plus = 0;
     private float dividents_minus = 0;
+    private int id;
 
-    public void IsOpen(GameObject dividentItem, string answer, string description)
+    public void IsOpen(GameObject dividentItem, string answer, string description, int id)
     {
         this.dividentItem = dividentItem;
         var item = dividentItem.GetComponent<DividentItem>();
-        if (deposit.GetDeposit() >= price) buyButton.interactable = true;
-        else buyButton.interactable = false;
-        this.answer = answer;
         this.price = item.Price;
+        if (deposit.GetDeposit() >= price)
+        {
+            buyButton.interactable = true;
+            sellButton.interactable = true;
+        }
+        else
+        {
+            buyButton.interactable = false;
+            sellButton.interactable = false;
+        }
+        this.answer = answer;
         this.check = item.Check;
         this.dividents_plus = item.Dividents_plus;
         this.dividents_minus = item.Dividents_minus;
+        this.id = id;
         textDescription.text = "Описание: " + description;
         textName.text = item.DividentName;
     }
@@ -38,6 +50,8 @@ public class Divident : MonoBehaviour
     {
         if (deposit.GetDeposit() >= price)
         {
+            buyButton.interactable = true;
+            sellButton.interactable = true;
             if (check)
             {
                 counter.Bonus += dividents_plus;
@@ -55,12 +69,19 @@ public class Divident : MonoBehaviour
             answerPanel.SetActive(true);
             DividentItemLock();
         }
+        else
+        {
+            buyButton.interactable = false;
+            sellButton.interactable = false;
+        }
     }
 
     public void BuyX2()
     {
         if (deposit.GetDeposit() >= price)
         {
+            buyButton.interactable = true;
+            sellButton.interactable = true;
             if (check)
             {
                 counter.Bonus += 0;
@@ -78,12 +99,19 @@ public class Divident : MonoBehaviour
             answerPanel.SetActive(true);
             DividentItemLock();
         }
+        else
+        {
+            buyButton.interactable = false;
+            sellButton.interactable = false;
+        }
     }
 
     public void Buy()
     {
         if (deposit.GetDeposit() >= price)
         {
+            buyButton.interactable = true;
+            sellButton.interactable = true;
             if (check)
             {
                 counter.Bonus += dividents_plus;
@@ -101,30 +129,45 @@ public class Divident : MonoBehaviour
             answerPanel.SetActive(true);
             DividentItemLock();
         }
+        else
+        {
+            buyButton.interactable = false;
+            sellButton.interactable = false;
+        }
     }
 
     public void Sell()
     {
-        if (check)
+        if (deposit.GetDeposit() >= price)
         {
-            money.RemoveDepositUpdate(price);
-            money.RemoveCapitalUpdate(price);
-            counter.Bonus += 0;
+            buyButton.interactable = true;
+            sellButton.interactable = true;
+            if (check)
+            {
+                money.RemoveDepositUpdate(price);
+                money.RemoveCapitalUpdate(price);
+                counter.Bonus += 0;
+            }
+            else
+            {
+                money.RemoveDepositUpdate(0);
+                money.RemoveCapitalUpdate(0);
+                counter.Bonus += 0;
+            }
+            answerPanel.GetComponent<AnswerPanel>().IsOpen(textName.text, answer);
+            answerPanel.SetActive(true);
+            DividentItemLock();
         }
         else
         {
-            money.RemoveDepositUpdate(0);
-            money.RemoveCapitalUpdate(0);
-            counter.Bonus += 0;
+            buyButton.interactable = false;
+            sellButton.interactable = false;
         }
-        answerPanel.GetComponent<AnswerPanel>().IsOpen(textName.text, answer);
-        answerPanel.SetActive(true);
-        DividentItemLock();
     }
 
     private void DividentItemLock()
     {
         dividentItem.GetComponent<DividentItem>().Lock();
-        PlayerPrefs.SetInt(textName.text, 1);
+        saveService.Data.lockedDividents[id]=true;
     }
 }
